@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Resources template for One Bite Pizza Reviews
+Description: Resources template for NHL Data Pipeline
 
 Parameters:
 
@@ -17,42 +17,3 @@ Resources:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: !Sub ${ProjectName}
-
-  ProducerLambdaExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-producer-lambda-execution-role
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  LambdaFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Sub ${ProjectName}-lambda
-      PackageType: Image
-      Role: !GetAtt ProducerLambdaExecutionRole.Arn
-      Code:
-        ImageUri: !Sub ${ProducerLambdaECRRepository.RepositoryUri}:${ImageTag}
-
-  ProducerLambdaScheduledRule:
-    Type: AWS::Events::Rule
-    Properties:
-      ScheduleExpression: rate(1 hour)
-      Targets:
-        - Arn: !GetAtt LambdaFunction.Arn
-          Id: "ProducerLambdaTarget"
-
-  ProducerLambdaPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref LambdaFunction
-      Action: lambda:InvokeFunction
-      Principal: events.amazonaws.com
-      SourceArn: !GetAtt ProducerLambdaScheduledRule.Arn
