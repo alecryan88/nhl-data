@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Resources template for One Bite Pizza Reviews
+Description: Resources template for NHL Data Pipeline
 
 Parameters:
 

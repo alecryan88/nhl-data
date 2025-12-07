@@ -14,7 +14,7 @@ ENV="${ENV:-dev}"
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 AWS_REGION=us-east-1
 GIT_SHA=$(git rev-parse HEAD)
-PROJECT_NAME=sport-odds
+PROJECT_NAME=nhl-data-pipeline
 
 export GIT_SHA=$GIT_SHA
 export AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID

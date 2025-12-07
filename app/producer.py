@@ -2,6 +2,7 @@ import requests
 import boto3
 import json
 import datetime
+import os
 
 client = boto3.client('s3')
 S3_BUCKET = 'nhl-data-test'
