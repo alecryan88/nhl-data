@@ -58,6 +58,7 @@ Resources:
       Role: !GetAtt ProducerLambdaExecutionRole.Arn
       Code:
         ImageUri: !Sub ${ProducerLambdaECRRepository.RepositoryUri}:${ImageTag}
+      Timeout: 60 # 1 minute
 
   ProducerLambdaScheduledRule:
     Type: AWS::Events::Rule
