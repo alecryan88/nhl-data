@@ -5,7 +5,7 @@ import datetime
 import os
 
 client = boto3.client('s3')
-S3_BUCKET = 'nhl-data-test'
+S3_BUCKET = 'nhl-data-pipeline-data'
 
 
 def get_game_data(game_id):
