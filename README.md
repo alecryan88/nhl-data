@@ -6,7 +6,7 @@ An ETL pipeline that extracts NHL game data from the NHL API and loads it to S3.
 
 1. Fetches the NHL schedule for the past 7 days
 2. Retrieves play-by-play data for each game
-3. Uploads game data to S3 (`s3://nhl-data-test/`)
+3. Uploads game data to S3
 
 ## Prerequisites
 
@@ -77,10 +77,11 @@ curl -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" \
 
 The pipeline is deployed to AWS using CloudFormation:
 
+- **S3 Bucket**: Stores NHL game data (`${ProjectName}-data`)
 - **ECR Repository**: Stores the Docker image
-- **Lambda Function**: Runs the ETL job
+- **Lambda Function**: Runs the ETL job (1 minute timeout)
 - **EventBridge Rule**: Triggers Lambda hourly
-- **IAM Role**: Execution permissions for Lambda
+- **IAM Role**: Execution permissions for Lambda with S3 read/write access
 
 Deploy infrastructure:
 
