@@ -1,0 +1,19 @@
+[project]
+name = "one-bite-pizza"
+version = "0.1.0"
+description = "ETL pipeline for extracting One Bite Data from API and loading to s3"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "boto3>=1.40.11",
+    "pyyaml>=6.0.2",
+    "requests>=2.32.4",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+docstring-code-format = true

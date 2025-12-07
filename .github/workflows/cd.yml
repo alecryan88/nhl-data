@@ -1,0 +1,30 @@
+name: cd_workflow
+on:
+  push:
+    branches:
+      - main
+
+env:
+    # re-tag the image for prod.
+    ENV: prod
+    GITHUB_SHA: ${{ github.sha }}
+
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Configure AWS creds
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region:            us-east-1
+
+            - name: Log in to ECR
+              uses: aws-actions/amazon-ecr-login@v2
+
+            - name: Re-tag and Push image to ECR
+              run: ./scripts/app/docker/push.sh
