@@ -8,6 +8,10 @@ An ETL pipeline that extracts NHL game data from the NHL API and loads it to S3.
 2. Retrieves play-by-play data for each game
 3. Uploads game data to S3
 
+## Architecture
+
+![Ingestion Architecture](./docs/ingestion.png)
+
 ## Prerequisites
 
 - Python 3.11+
