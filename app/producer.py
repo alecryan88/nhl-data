@@ -46,10 +46,12 @@ def upload_game_data(game_object: dict, partition_date: str):
         Body=json.dumps(game_object)
     )
 
-def main():
-    base = datetime.date(2025, 12, 7)
-    numdays = 7
-    for date in [base - datetime.timedelta(days=x) for x in range(numdays)]:
+def main(event: dict):
+    print(f"Event: {event}")
+
+    base = datetime.datetime.fromisoformat(event['time'].replace('Z', '+00:00')).date()
+    yesterday = base - datetime.timedelta(days=1)
+    for date in [yesterday]:
         date = date.strftime('%Y-%m-%d')
         games = get_schedule_games(date)
         for game in games:
@@ -64,6 +66,6 @@ def lambda_handler(event, context) -> dict:
     print("Lambda invoked")
     print(f"Event: {event}")
 
-    main()
+    main(event)
 
     return {"statusCode": 200, "body": "Success"}
