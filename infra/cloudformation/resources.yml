@@ -63,7 +63,7 @@ Resources:
   ProducerLambdaScheduledRule:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: rate(1 hour)
+      ScheduleExpression: cron(5 3 * * ? *) # daily at 3:05 AM
       Targets:
         - Arn: !GetAtt LambdaFunction.Arn
           Id: "ProducerLambdaTarget"
