@@ -1,0 +1,13 @@
+{
+    "version": "0",
+    "id": "a055d3bc-f66c-61e1-800b-977e3dcf8205",
+    "detail-type": "Scheduled Event",
+    "source": "aws.events",
+    "account": "820242944968",
+    "time": "2025-12-07T17:52:56Z",
+    "region": "us-east-1",
+    "resources": [
+        "arn:aws:events:us-east-1:820242944968:rule/nhl-data-pipeline-ProducerLambdaScheduledRule-8x1qFAspdfSJ"
+    ],
+    "detail": {}
+}
