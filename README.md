@@ -23,15 +23,15 @@ An ETL pipeline that extracts NHL game data from the NHL API and loads it to S3.
 ## Project Structure
 
 ```
-├── app/
+├── ingestion/
 │   └── producer.py      # Main ETL logic
 ├── infra/
 │   └── cloudformation/  # AWS infrastructure
 ├── scripts/
-│   ├── app/docker/      # Docker build/run scripts
-│   └── shared/          # Shared bash utilities
-├── Dockerfile           # Lambda container image
-└── pyproject.toml       # Python dependencies
+│   ├── ingestion/docker/  # Docker build/run scripts
+│   └── shared/            # Shared bash utilities
+├── Dockerfile             # Lambda container image
+└── pyproject.toml         # Python dependencies
 ```
 
 ## Running Locally
@@ -43,7 +43,7 @@ An ETL pipeline that extracts NHL game data from the NHL API and loads it to S3.
 uv sync
 
 # Run the producer
-uv run python -m app.producer
+uv run python -m ingestion.producer
 ```
 
 ### Option 2: Run with Docker (simulates Lambda environment)
@@ -63,10 +63,10 @@ AWS_DEFAULT_REGION=us-east-1
 export ENV=dev
 
 # Run the Docker container
-./scripts/app/docker/run.sh
+./scripts/ingestion/docker/run.sh
 ```
 
-This builds the Docker image and runs it locally with hot-reloading enabled (mounts `./app` directory).
+This builds the Docker image and runs it locally with hot-reloading enabled (mounts `./ingestion` directory).
 
 ### Invoking the Lambda locally
 
