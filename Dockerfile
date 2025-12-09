@@ -30,6 +30,6 @@ FROM public.ecr.aws/lambda/python:3.13
 COPY --from=builder ${LAMBDA_TASK_ROOT} ${LAMBDA_TASK_ROOT}
 
 # Copy the application code.
-COPY ./app ${LAMBDA_TASK_ROOT}/app
+COPY ./ingestion ${LAMBDA_TASK_ROOT}/ingestion
 WORKDIR ${LAMBDA_TASK_ROOT}
-CMD [ "app.producer.lambda_handler" ]
+CMD [ "ingestion.producer.lambda_handler" ]
