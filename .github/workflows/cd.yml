@@ -27,4 +27,4 @@ jobs:
               uses: aws-actions/amazon-ecr-login@v2
 
             - name: Re-tag and Push image to ECR
-              run: ./scripts/app/docker/push.sh
+              run: ./scripts/ingestion/docker/push.sh
