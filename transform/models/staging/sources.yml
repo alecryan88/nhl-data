@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: raw_api_data
+    description: "Raw data from Supabase PostgreSQL database"
+    schema: public
+    tables:
+      - name: game_data
+        description: "Raw NHL game data ingested from the NHL API. This is sent via a lambda function via a post request to the supabase database."
+
