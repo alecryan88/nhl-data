@@ -17,7 +17,7 @@ Select
     event->>'gameDate' as game_date,
     event->'venue'->>'default' as venue_name,
     event->'venueLocation'->>'default' as venue_location,
-    event->>'startTimeUTC' as start_time_utc,
+    (event->>'startTimeUTC')::timestamp as start_time_utc,
     event->>'easternUTCOffset' as eastern_utc_offset,
     event->>'venueUTCOffset' as venue_utc_offset,
     event->'tvBroadcasts' as tv_broadcasts,

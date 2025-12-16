@@ -7,4 +7,11 @@ sources:
     tables:
       - name: game_data
         description: "Raw NHL game data ingested from the NHL API. This is sent via a lambda function via a post request to the supabase database."
+        columns:
+          - name: game_id
+            description: "Unique identifier for each NHL game"
+          - name: partition_date
+            description: "Date of the game"
+          - name: event
+            description: "Raw NHL game data ingested from the NHL API"
 

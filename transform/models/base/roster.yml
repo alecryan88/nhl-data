@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: roster
+    config:
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns: [game_id, player_id]
+    description: >
+      Player roster information for each NHL game. Contains one row per player 
+      per game, with player details and team assignment.
+    columns:
+      - name: game_id
+        description: Unique identifier for the NHL game
+        data_type: string
+
+      - name: team_id
+        description: Unique identifier for the team the player is rostered on
+        data_type: integer
+      - name: player_id
+        description: Unique identifier for the player
+        data_type: integer
+      - name: first_name
+        description: Player's first name
+        data_type: string
+      - name: last_name
+        description: Player's last name
+        data_type: string
+      - name: sweater_number
+        description: Player's jersey number
+        data_type: integer
+      - name: position_code
+        description: Player's position code (e.g., C, LW, RW, D, G)
+        data_type: string
+      - name: headshot_url
+        description: URL to the player's headshot image
+        data_type: string

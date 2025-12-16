@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: games
+    description: >
+      Base model containing NHL game information. Extracts core game identifiers 
+      and team relationships from the staging layer.
+    config:
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns: [game_id]
+    columns:
+      - name: game_id
+        description: Unique identifier for each NHL game
+        data_type: string
+      - name: season_id
+        description: The season identifier (e.g., '20242025' for the 2024-2025 season)
+        data_type: string
+      - name: game_type_id
+        description: >
+          Numeric code indicating the type of game:
+          1 = Preseason, 2 = Regular Season, 3 = Playoffs
+        data_type: integer
+        accepted_values: [1, 2, 3]
+      - name: game_type
+        description: Human-readable game type (Preseason, Regular Season, Playoffs, or Unknown)
+        data_type: string
+      - name: start_time_utc
+        description: The scheduled start time of the game in UTC timezone
+        data_type: timestamp
+      - name: away_team_id
+        description: Unique identifier for the away team
+        data_type: integer
+      - name: home_team_id
+        description: Unique identifier for the home team
+        data_type: integer
