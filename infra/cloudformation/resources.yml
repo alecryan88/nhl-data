@@ -78,6 +78,9 @@ Resources:
       ImageConfig:
         Command:
           - ingestion.nhl_api_s3.lambda_handler
+      Environment:
+        Variables:
+          S3_BUCKET: !Ref DataBucket
       Timeout: 60
 
   # Lambda 2: Supabase Upload
