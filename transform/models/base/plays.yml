@@ -1,0 +1,173 @@
+version: 2
+
+models:
+  - name: plays
+    description: >
+      Base model containing NHL play-by-play data. Extracts individual game events
+      from the nested JSON plays array, including goals, shots, hits, penalties, 
+      faceoffs, and other game actions.
+    config:
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns: [game_play_id]
+    columns:
+      - name: game_id
+        description: Unique identifier for the NHL game this play belongs to
+        data_type: string
+      - name: event_id
+        description: Event identifier within the game
+        data_type: integer
+      - name: game_play_id
+        description: Surrogate key combining game_id and event_id for unique play identification
+        data_type: string
+      - name: period_number
+        description: The period number (1, 2, 3 for regulation, 4 for ovoertime, 5 for shooutout)
+        data_type: integer
+      - name: period_type
+        description: Type of period (REG for regulation, OT for overtime, SO for shootout)
+        data_type: string
+      - name: max_regulation_periods
+        description: Maximum number of regulation periods for the game (typically 3)
+        data_type: integer
+      - name: time_in_period
+        description: Elapsed time in the period when the event occurred (MM:SS format)
+        data_type: string
+      - name: time_remaining
+        description: Time remaining in the period when the event occurred (MM:SS format)
+        data_type: string
+      - name: situation_code
+        description: >
+          Four-digit code representing the on-ice situation (e.g., skater counts).
+          Format is typically AAHH where AA=away skaters, HH=home skaters.
+        data_type: string
+      - name: home_team_defending_side
+        description: Which side of the ice the home team is defending (left or right)
+        data_type: string
+      - name: type_code
+        description: Numeric code for the type of play event
+        data_type: integer
+      - name: type_desc_key
+        description: >
+          Descriptive key for the play type (e.g., faceoff, hit, shot-on-goal, 
+          goal, blocked-shot, missed-shot, giveaway, takeaway, penalty, stoppage)
+        data_type: string
+      - name: sort_order
+        description: Ordering value to maintain chronological sequence of events
+        data_type: integer
+      - name: ppt_replay_url
+        description: URL for the play replay video
+        data_type: string
+      - name: event_owner_team_id
+        description: Team ID of the team associated with this event
+        data_type: integer
+      - name: losing_player_id
+        description: Player ID of the player who lost a faceoff
+        data_type: integer
+      - name: winning_player_id
+        description: Player ID of the player who won a faceoff
+        data_type: integer
+      - name: x_coord
+        description: X coordinate on the ice where the event occurred (-100 to 100)
+        data_type: integer
+      - name: y_coord
+        description: Y coordinate on the ice where the event occurred (-42 to 42)
+        data_type: integer
+      - name: zone_code
+        description: Zone where the event occurred (O=offensive, D=defensive, N=neutral)
+        data_type: string
+      - name: hitting_player_id
+        description: Player ID of the player who delivered a hit
+        data_type: integer
+      - name: hittee_player_id
+        description: Player ID of the player who received a hit
+        data_type: integer
+      - name: shot_type
+        description: Type of shot (wrist, slap, snap, backhand, tip-in, deflected, wrap-around)
+        data_type: string
+      - name: shooting_player_id
+        description: Player ID of the player who took the shot
+        data_type: integer
+      - name: goalie_in_net_id
+        description: Player ID of the goalie in net during the event
+        data_type: integer
+      - name: away_sog
+        description: Cumulative shots on goal for the away team at time of event
+        data_type: integer
+      - name: home_sog
+        description: Cumulative shots on goal for the home team at time of event
+        data_type: integer
+      - name: reason
+        description: Reason for a stoppage or other event
+        data_type: string
+      - name: scoring_player_id
+        description: Player ID of the goal scorer
+        data_type: integer
+      - name: scoring_player_total
+        description: Season goal total for the scoring player after this goal
+        data_type: integer
+      - name: assist1_player_id
+        description: Player ID of the primary assist on a goal
+        data_type: integer
+      - name: assist1_player_total
+        description: Season assist total for the primary assister after this assist
+        data_type: integer
+      - name: assist2_player_id
+        description: Player ID of the secondary assist on a goal
+        data_type: integer
+      - name: assist2_player_total
+        description: Season assist total for the secondary assister after this assist
+        data_type: integer
+      - name: away_score
+        description: Away team score at time of event
+        data_type: integer
+      - name: home_score
+        description: Home team score at time of event
+        data_type: integer
+      - name: highlight_clip_sharing_url
+        description: Shareable URL for the highlight clip (English)
+        data_type: string
+      - name: highlight_clip
+        description: Highlight clip identifier or URL (English)
+        data_type: string
+      - name: discrete_clip
+        description: Discrete clip identifier (English)
+        data_type: string
+      - name: discrete_clip_fr
+        description: Discrete clip identifier (French)
+        data_type: string
+      - name: player_id
+        description: Generic player ID field used for various event types
+        data_type: integer
+      - name: blocking_player_id
+        description: Player ID of the player who blocked a shot
+        data_type: integer
+      - name: details_type_code
+        description: Type code from the details object (may differ from main type_code)
+        data_type: string
+      - name: desc_key
+        description: Description key for penalty or other event details
+        data_type: string
+      - name: duration
+        description: Duration of a penalty in minutes
+        data_type: integer
+      - name: committed_by_player_id
+        description: Player ID of the player who committed a penalty
+        data_type: integer
+      - name: drawn_by_player_id
+        description: Player ID of the player who drew a penalty
+        data_type: integer
+      - name: secondary_reason
+        description: Additional reason or detail for an event
+        data_type: string
+      - name: served_by_player_id
+        description: Player ID of the player serving a penalty (if different from committer)
+        data_type: integer
+      - name: highlight_clip_sharing_url_fr
+        description: Shareable URL for the highlight clip (French)
+        data_type: string
+      - name: highlight_clip_fr
+        description: Highlight clip identifier or URL (French)
+        data_type: string
+

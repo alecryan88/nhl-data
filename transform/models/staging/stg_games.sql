@@ -2,36 +2,38 @@
 
 Select 
 
-    id as game_id,
-    season as season_id,
-    gameType::integer as game_type_id,
+    game_id,
+    partition_date,
+    event->>'id' as event_id,
+    event->>'season' as season_id,
+    (event->>'gameType')::integer as game_type_id,
     case 
-        when gameType::integer = 3 then 'Playoffs'
-        when gameType::integer = 2 then 'Regular Season'
-        when gameType::integer = 1 then 'Preseason'
+        when (event->>'gameType')::integer = 3 then 'Playoffs'
+        when (event->>'gameType')::integer = 2 then 'Regular Season'
+        when (event->>'gameType')::integer = 1 then 'Preseason'
         else 'Unknown'
-    end game_type,
-    limitedScoring::boolean as limited_scoring_flag,
-    gameDate as game_date,
-    json_extract_string(venue, '$.default') as venue_name,
-    json_extract_string(venueLocation, '$.default') as venue_location,
-    startTimeUTC as start_time_utc,
-    easternUTCOffset as eastern_utc_offset,
-    venueUTCOffset as venue_utc_offset,
-    tvBroadcasts::json[] as tv_broadcasts,
-    gameState as game_state,
-    gameScheduleState as game_schedule_state,
-    periodDescriptor::json as period_descriptor,
-    awayTeam::json as away_team,
-    homeTeam::json as home_team,
-    shootoutInUse::boolean as shootout_in_use,
-    otInUse::boolean as ot_in_use,
-    clock::json as clock,
-    displayPeriod as display_period,
-    maxPeriods::integer as max_periods,
-    gameOutcome::json as game_outcome,
-    plays::json[] as plays,
-    rosterSpots::json[] as roster_spots
+    end as game_type,
+    (event->>'limitedScoring')::boolean as limited_scoring_flag,
+    event->>'gameDate' as game_date,
+    event->'venue'->>'default' as venue_name,
+    event->'venueLocation'->>'default' as venue_location,
+    (event->>'startTimeUTC')::timestamp as start_time_utc,
+    event->>'easternUTCOffset' as eastern_utc_offset,
+    event->>'venueUTCOffset' as venue_utc_offset,
+    event->'tvBroadcasts' as tv_broadcasts,
+    event->>'gameState' as game_state,
+    event->>'gameScheduleState' as game_schedule_state,
+    event->'periodDescriptor' as period_descriptor,
+    event->'awayTeam' as away_team,
+    event->'homeTeam' as home_team,
+    (event->>'shootoutInUse')::boolean as shootout_in_use,
+    (event->>'otInUse')::boolean as ot_in_use,
+    event->'clock' as clock,
+    event->>'displayPeriod' as display_period,
+    (event->>'maxPeriods')::integer as max_periods,
+    event->'gameOutcome' as game_outcome,
+    event->'plays' as plays,
+    event->'rosterSpots' as roster_spots
 
-from read_json('s3://nhl-data-pipeline-data/game_data=*/game_id=*.json')
+from {{ source('raw_api_data', 'game_data') }}
 

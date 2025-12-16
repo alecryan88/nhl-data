@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: teams
+    description: >
+      Base model containing NHL team information. Extracts unique teams from 
+      game data including team identifiers, names, and logo URLs.
+    config:
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns: [team_id]
+    columns:
+      - name: team_id
+        description: Unique identifier for the NHL team
+        data_type: integer
+      - name: common_name
+        description: Common name of the team (e.g., "Bruins", "Maple Leafs")
+        data_type: string
+      - name: abbrev
+        description: Three-letter abbreviation for the team (e.g., "BOS", "TOR")
+        data_type: string
+      - name: logo
+        description: URL to the team's primary logo image
+        data_type: string
+      - name: dark_logo
+        description: URL to the team's logo image optimized for dark backgrounds
+        data_type: string
+      - name: place_name
+        description: City or place name associated with the team (e.g., "Boston", "Toronto")
+        data_type: string
+      - name: place_name_with_preposition
+        description: Place name with grammatical preposition (e.g., "in Boston", "in Toronto")
+        data_type: string
+

@@ -32,4 +32,7 @@ COPY --from=builder ${LAMBDA_TASK_ROOT} ${LAMBDA_TASK_ROOT}
 # Copy the application code.
 COPY ./ingestion ${LAMBDA_TASK_ROOT}/ingestion
 WORKDIR ${LAMBDA_TASK_ROOT}
-CMD [ "ingestion.producer.lambda_handler" ]
+
+# Specify handler when creating Lambda function:
+#   - ingestion.producer.lambda_handler
+#   - ingestion.supabase_lambda.lambda_handler
