@@ -1,6 +1,10 @@
+import logging
 import os
+
 import boto3
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 def get_supabase_credentials():
@@ -35,6 +39,11 @@ class SupabaseUploader:
         self.table_name = table_name
 
     def upload_game_data(self, game_object: dict):
+        game_id = game_object['id']
+        partition_date = game_object['partition_date']
+        
+        logger.info(f"Uploading game to Supabase: game_id={game_id}, partition_date={partition_date}, table={self.table_name}")
+        
         url = f"{self.url}/rest/v1/{self.table_name}"
         headers = {
             "apikey": self.secret,
@@ -44,10 +53,12 @@ class SupabaseUploader:
             "Prefer": "return=minimal,resolution=merge-duplicates"
         }
         payload = {
-            "game_id": game_object['id'],
-            "partition_date": game_object['partition_date'],
+            "game_id": game_id,
+            "partition_date": partition_date,
             "event": game_object
         }
         response = requests.post(url, json=payload, headers=headers)
         response.raise_for_status()
-        return {"status": "ok", "game_id": game_object['id']}
+        
+        logger.info(f"Successfully uploaded game to Supabase: game_id={game_id}")
+        return {"status": "ok", "game_id": game_id}
