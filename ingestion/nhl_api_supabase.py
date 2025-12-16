@@ -1,7 +1,4 @@
-import requests
-import json
 import datetime
-
 
 from ingestion.lib.nhl_api import NHLAPIHandler
 from ingestion.lib.supbase_uploader import SupabaseUploader

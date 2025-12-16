@@ -65,6 +65,16 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ParameterStoreAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ProjectName}/supabase/*
 
   # Lambda 1: S3 Upload
   S3LambdaFunction:
@@ -78,6 +88,9 @@ Resources:
       ImageConfig:
         Command:
           - ingestion.nhl_api_s3.lambda_handler
+      Environment:
+        Variables:
+          S3_BUCKET: !Ref DataBucket
       Timeout: 60
 
   # Lambda 2: Supabase Upload
@@ -92,6 +105,9 @@ Resources:
       ImageConfig:
         Command:
           - ingestion.nhl_api_supabase.lambda_handler
+      Environment:
+        Variables:
+          SUPABASE_PARAM_PREFIX: !Sub /${ProjectName}/supabase
       Timeout: 60
 
   # Schedule for S3 Lambda
