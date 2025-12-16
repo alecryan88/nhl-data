@@ -60,7 +60,10 @@ def main(event: dict):
 
 
 if __name__ == '__main__':
-    main()
+    # Used for local testing with uv run
+    with open('ingestion/test_event.json', 'r') as f:
+        event = json.load(f)
+    main(event)
 
 def lambda_handler(event, context) -> dict:
     print("Lambda invoked")
