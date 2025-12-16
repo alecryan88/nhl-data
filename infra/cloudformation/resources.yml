@@ -110,11 +110,11 @@ Resources:
           SUPABASE_PARAM_PREFIX: !Sub /${ProjectName}/supabase
       Timeout: 60
 
-  # Schedule for S3 Lambda
+  # Schedule for S3 Lambda (8 AM EST / 1 PM UTC)
   S3LambdaScheduledRule:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: cron(5 3 * * ? *)
+      ScheduleExpression: cron(0 13 * * ? *)
       Targets:
         - Arn: !GetAtt S3LambdaFunction.Arn
           Id: "S3LambdaTarget"
@@ -127,11 +127,11 @@ Resources:
       Principal: events.amazonaws.com
       SourceArn: !GetAtt S3LambdaScheduledRule.Arn
 
-  # Schedule for Supabase Lambda
+  # Schedule for Supabase Lambda (8 AM EST / 1 PM UTC)
   SupabaseLambdaScheduledRule:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: cron(5 3 * * ? *)
+      ScheduleExpression: cron(0 13 * * ? *)
       Targets:
         - Arn: !GetAtt SupabaseLambdaFunction.Arn
           Id: "SupabaseLambdaTarget"
