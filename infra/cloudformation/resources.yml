@@ -23,10 +23,11 @@ Resources:
     Properties:
       RepositoryName: !Sub ${ProjectName}
 
-  ProducerLambdaExecutionRole:
+  # IAM Role for S3 Lambda
+  S3LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${ProjectName}-producer-lambda-execution-role
+      RoleName: !Sub ${ProjectName}-s3-lambda-execution-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -50,28 +51,79 @@ Resources:
                   - !GetAtt DataBucket.Arn
                   - !Sub ${DataBucket.Arn}/*
 
-  LambdaFunction:
+  # IAM Role for Supabase Lambda
+  SupabaseLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-supabase-lambda-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda 1: S3 Upload
+  S3LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub ${ProjectName}-lambda
+      FunctionName: !Sub ${ProjectName}-s3-lambda
       PackageType: Image
-      Role: !GetAtt ProducerLambdaExecutionRole.Arn
+      Role: !GetAtt S3LambdaExecutionRole.Arn
       Code:
         ImageUri: !Sub ${ProducerLambdaECRRepository.RepositoryUri}:${ImageTag}
-      Timeout: 60 # 1 minute
+      ImageConfig:
+        Command:
+          - ingestion.nhl_api_s3.lambda_handler
+      Timeout: 60
 
-  ProducerLambdaScheduledRule:
+  # Lambda 2: Supabase Upload
+  SupabaseLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-supabase-lambda
+      PackageType: Image
+      Role: !GetAtt SupabaseLambdaExecutionRole.Arn
+      Code:
+        ImageUri: !Sub ${ProducerLambdaECRRepository.RepositoryUri}:${ImageTag}
+      ImageConfig:
+        Command:
+          - ingestion.nhl_api_supabase.lambda_handler
+      Timeout: 60
+
+  # Schedule for S3 Lambda
+  S3LambdaScheduledRule:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: cron(5 3 * * ? *) # daily at 3:05 AM
+      ScheduleExpression: cron(5 3 * * ? *)
       Targets:
-        - Arn: !GetAtt LambdaFunction.Arn
-          Id: "ProducerLambdaTarget"
+        - Arn: !GetAtt S3LambdaFunction.Arn
+          Id: "S3LambdaTarget"
 
-  ProducerLambdaPermission:
+  S3LambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref LambdaFunction
+      FunctionName: !Ref S3LambdaFunction
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-      SourceArn: !GetAtt ProducerLambdaScheduledRule.Arn
+      SourceArn: !GetAtt S3LambdaScheduledRule.Arn
+
+  # Schedule for Supabase Lambda
+  SupabaseLambdaScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: cron(5 3 * * ? *)
+      Targets:
+        - Arn: !GetAtt SupabaseLambdaFunction.Arn
+          Id: "SupabaseLambdaTarget"
+
+  SupabaseLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref SupabaseLambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt SupabaseLambdaScheduledRule.Arn
