@@ -1,11 +1,37 @@
 import os
+import boto3
 import requests
+
+
+def get_supabase_credentials():
+    """Fetch Supabase credentials from AWS Parameter Store."""
+    param_prefix = os.environ.get('SUPABASE_PARAM_PREFIX')
+    
+    # Fall back to env vars for local development
+    if not param_prefix:
+        return {
+            'url': os.environ['SUPABASE_URL'],
+            'secret': os.environ['SUPABASE_SECRET']
+        }
+    
+    ssm = boto3.client('ssm')
+    response = ssm.get_parameters(
+        Names=[
+            f'{param_prefix}/url',
+            f'{param_prefix}/secret'
+        ],
+        WithDecryption=True
+    )
+    
+    params = {p['Name'].split('/')[-1]: p['Value'] for p in response['Parameters']}
+    return params
 
 
 class SupabaseUploader:
     def __init__(self, table_name: str):
-        self.url = os.environ['SUPABASE_URL']
-        self.secret = os.environ['SUPABASE_SECRET']
+        credentials = get_supabase_credentials()
+        self.url = credentials['url']
+        self.secret = credentials['secret']
         self.table_name = table_name
 
     def upload_game_data(self, game_object: dict):
