@@ -4,7 +4,7 @@ set -euo pipefail
 # u: treat unset variables as errors
 # o pipefail: don't ignore errors in pipelines
 
-HANDLER="${1:?Usage: $0 <handler> (e.g. ingestion.producer.lambda_handler)}"
+HANDLER="${1:?Usage: $0 <handler> (e.g. nhl_api_s3.lambda_handler)}"
 shift
 
 # Run build script
@@ -13,15 +13,22 @@ source ./scripts/ingestion/docker/build.sh
 echo "ENV: $ENV"
 echo "Handler: $HANDLER"
 
-# In dev, we mount the extract directory to the container for hot reloading
+IMAGE="${FULL_REPOSITORY_NAME}:${GIT_SHA}"
+
+# In dev, we mount only source files for hot reloading (not the whole dir, which would overwrite deps)
 if [[ $ENV == "dev" ]]
 then
-    docker run --env-file .env -p 9000:8080 -v $(pwd)/ingestion:/var/task/ingestion $ECR_GIT_SHA_TAG "$HANDLER" "$@"
+    docker run --env-file .env -p 9000:8080 \
+        -v $(pwd)/ingestion/lib:/var/task/lib \
+        -v $(pwd)/ingestion/nhl_api_s3.py:/var/task/nhl_api_s3.py \
+        -v $(pwd)/ingestion/nhl_api_supabase.py:/var/task/nhl_api_supabase.py \
+        $IMAGE "$HANDLER" "$@"
 elif [[ $ENV == "prod" ]]
 then
-    echo "Pulling ${PROD_TAG}"
-    docker pull $PROD_TAG
-    docker run --env-file .env -p 9000:8080 $ECR_GIT_SHA_TAG "$HANDLER" "$@"
+    PROD_IMAGE="${FULL_REPOSITORY_NAME}:prod"
+    echo "Pulling ${PROD_IMAGE}"
+    docker pull $PROD_IMAGE
+    docker run --env-file .env -p 9000:8080 $PROD_IMAGE "$HANDLER" "$@"
 else
-    docker run --env-file .env -p 9000:8080 $ECR_GIT_SHA_TAG "$HANDLER" "$@"
+    docker run --env-file .env -p 9000:8080 $IMAGE "$HANDLER" "$@"
 fi

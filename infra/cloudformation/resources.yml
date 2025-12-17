@@ -87,7 +87,7 @@ Resources:
         ImageUri: !Sub ${ProducerLambdaECRRepository.RepositoryUri}:${ImageTag}
       ImageConfig:
         Command:
-          - ingestion.nhl_api_s3.lambda_handler
+          - nhl_api_s3.lambda_handler
       Environment:
         Variables:
           S3_BUCKET: !Ref DataBucket
@@ -104,7 +104,7 @@ Resources:
         ImageUri: !Sub ${ProducerLambdaECRRepository.RepositoryUri}:${ImageTag}
       ImageConfig:
         Command:
-          - ingestion.nhl_api_supabase.lambda_handler
+          - nhl_api_supabase.lambda_handler
       Environment:
         Variables:
           SUPABASE_PARAM_PREFIX: !Sub /${ProjectName}/supabase

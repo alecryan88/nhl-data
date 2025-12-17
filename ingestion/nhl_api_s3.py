@@ -1,8 +1,8 @@
 import datetime
 import logging
 
-from ingestion.lib.nhl_api import NHLAPIHandler
-from ingestion.lib.s3_uploader import S3Uploader
+from lib.nhl_api import NHLAPIHandler
+from lib.s3_uploader import S3Uploader
 
 # Configure logging for Lambda
 logger = logging.getLogger()

@@ -1,8 +1,8 @@
 import datetime
 import logging
 
-from ingestion.lib.nhl_api import NHLAPIHandler
-from ingestion.lib.supbase_uploader import SupabaseUploader
+from lib.nhl_api import NHLAPIHandler
+from lib.supbase_uploader import SupabaseUploader
 
 # Configure logging for Lambda
 logger = logging.getLogger()

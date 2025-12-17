@@ -1,14 +1,11 @@
 [project]
-name = "one-bite-pizza"
+name = "nhl-ingestion"
 version = "0.1.0"
-description = "ETL pipeline for extracting One Bite Data from API and loading to s3"
-readme = "README.md"
+description = "ETL pipeline for extracting NHL data from API and loading to S3/Supabase"
+readme = "../README.md"
 requires-python = ">=3.11"
 dependencies = [
     "boto3>=1.40.11",
-    "dbt>=1.0.0.40.12",
-    "dbt-core>=1.10.15",
-    "dbt-duckdb>=1.10.0",
     "pyyaml>=6.0.2",
     "requests>=2.32.4",
 ]
@@ -20,3 +17,4 @@ line-length = 100
 quote-style = "single"
 indent-style = "space"
 docstring-code-format = true
+
