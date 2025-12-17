@@ -30,9 +30,12 @@ FROM public.ecr.aws/lambda/python:3.13
 COPY --from=builder ${LAMBDA_TASK_ROOT} ${LAMBDA_TASK_ROOT}
 
 # Copy the application code.
-COPY ./ingestion ${LAMBDA_TASK_ROOT}/ingestion
+COPY ./lib ${LAMBDA_TASK_ROOT}/lib
+COPY ./*.py ${LAMBDA_TASK_ROOT}/
+
 WORKDIR ${LAMBDA_TASK_ROOT}
 
 # Specify handler when creating Lambda function:
-#   - ingestion.producer.lambda_handler
-#   - ingestion.supabase_lambda.lambda_handler
+#   - nhl_api_s3.lambda_handler
+#   - nhl_api_supabase.lambda_handler
+

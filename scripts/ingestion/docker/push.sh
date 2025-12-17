@@ -2,7 +2,7 @@
 set -euo pipefail 
 # e: exit on any error
 # u: treat unset variables as errors
-# o pipefail: don’t ignore errors in pipelines
+# o pipefail: don't ignore errors in pipelines
 
 
 # Constants
@@ -22,7 +22,7 @@ then
 
 elif [[ $ENV == "ci" ]]
 then
-    echo "Pushing to ECR in CI environment"
+    echo "Pushing ingestion image to ECR"
     docker push $FULL_REPOSITORY_NAME:$GIT_SHA
     docker push $FULL_REPOSITORY_NAME:$ENV
 fi
