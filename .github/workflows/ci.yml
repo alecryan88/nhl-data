@@ -28,7 +28,7 @@ jobs:
             - name: Build and push image to ECR
               env:
                   ENV: ${{ env.ENV }}
-              run: ./scripts/ingestion/docker/build.sh && ./scripts/ingestion/docker/push.sh
+              run: ./ingestion/scripts/build.sh && ./ingestion/scripts/push.sh
 
             - name: Deploy CFN Lambda Resources
-              run: ./scripts/infra/deploy.sh ${{ env.GITHUB_SHA }}
+              run: ./infra/scripts/deploy.sh ${{ env.GITHUB_SHA }}
