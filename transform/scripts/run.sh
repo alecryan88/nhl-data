@@ -5,7 +5,7 @@ set -euo pipefail
 # o pipefail: don't ignore errors in pipelines
 
 # Run build script
-source ./scripts/transform/docker/build.sh
+source ./transform/scripts/build.sh
 
 echo "ENV: $ENV"
 
