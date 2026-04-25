@@ -48,7 +48,7 @@ This project is split into two independent components, each with its own Docker 
 │   ├── ingestion/docker/      # Ingestion Docker build/run scripts
 │   ├── transform/docker/      # Transform Docker build/run scripts
 │   └── shared/                # Shared bash utilities
-└── pyproject.toml             # (legacy - can be removed)
+└── .env.example               # Environment variable template
 ```
 
 ## Setup
@@ -69,17 +69,10 @@ uv sync
 
 ### Run with Docker (simulates Lambda environment)
 
-1. Create a `.env` file in the project root with your credentials:
+1. Copy `.env.example` to `.env` and fill in your credentials:
 
 ```bash
-# AWS credentials (for S3 storage)
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_DEFAULT_REGION=us-east-1
-
-# Supabase credentials (for Supabase storage)
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SECRET=your_service_role_key
+cp .env.example .env
 ```
 
 2. Build and run the container:
@@ -144,3 +137,12 @@ Deploy infrastructure:
 ```bash
 ./scripts/infra/deploy.sh
 ```
+
+## CI/CD
+
+Two GitHub Actions workflows handle deployment:
+
+- **`ci.yml`** — runs on every non-main push: builds the Docker image, tags it with the commit SHA and `ci`, pushes to ECR, and deploys the CloudFormation stack.
+- **`cd.yml`** — runs on push to `main`: re-tags the existing `ci` image as `prod` and pushes to ECR. No rebuild — promotes the already-tested image.
+
+Both workflows require `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` configured as GitHub Actions secrets.

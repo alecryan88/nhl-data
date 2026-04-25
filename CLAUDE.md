@@ -13,11 +13,11 @@ Both components use **uv** for dependency management.
 ### Ingestion
 
 ```bash
-cd ingestion && uv sync           # install deps
-./scripts/ingestion/docker/build.sh   # build Docker image
-./scripts/ingestion/docker/run.sh nhl_api_s3.lambda_handler        # run S3 handler locally
-./scripts/ingestion/docker/run.sh nhl_api_supabase.lambda_handler   # run Supabase handler locally
-./scripts/ingestion/docker/push.sh    # push image to ECR
+cd ingestion && uv sync                    # install deps
+ENV=dev ./scripts/ingestion/docker/build.sh   # build Docker image
+ENV=dev ./scripts/ingestion/docker/run.sh nhl_api_s3.lambda_handler        # run S3 handler locally
+ENV=dev ./scripts/ingestion/docker/run.sh nhl_api_supabase.lambda_handler   # run Supabase handler locally
+ENV=ci  ./scripts/ingestion/docker/push.sh    # push image to ECR (ci or prod)
 ```
 
 Invoke locally after container starts:
@@ -100,6 +100,9 @@ Create a `.env` file at the repo root with:
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
 AWS_DEFAULT_REGION=...
+S3_BUCKET=...
 SUPABASE_URL=...
 SUPABASE_SECRET=...
 ```
+
+Copy `.env.example` from the repo root as a starting point.
