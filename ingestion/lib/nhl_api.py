@@ -1,5 +1,6 @@
 import requests
 
+
 class NHLAPIHandler:
     def __init__(self):
         self.base_url = 'https://api-web.nhle.com/v1'

@@ -14,14 +14,10 @@ class S3Uploader:
 
     def upload_game_data(self, game_object: dict, partition_date: str):
         game_id = game_object['id']
-        key = f"game_data={partition_date}/game_id={game_id}.json"
-        
-        logger.info(f"Uploading game to S3: bucket={self.bucket}, key={key}")
-        
-        self.s3.put_object(
-            Bucket=self.bucket,
-            Key=key,
-            Body=json.dumps(game_object)
-        )
-        
-        logger.info(f"Successfully uploaded game to S3: game_id={game_id}")
+        key = f'game_data={partition_date}/game_id={game_id}.json'
+
+        logger.info(f'Uploading game to S3: bucket={self.bucket}, key={key}')
+
+        self.s3.put_object(Bucket=self.bucket, Key=key, Body=json.dumps(game_object))
+
+        logger.info(f'Successfully uploaded game to S3: game_id={game_id}')
