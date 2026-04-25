@@ -14,10 +14,10 @@ Both components use **uv** for dependency management.
 
 ```bash
 cd ingestion && uv sync                    # install deps
-ENV=dev ./scripts/ingestion/docker/build.sh   # build Docker image
-ENV=dev ./scripts/ingestion/docker/run.sh nhl_api_s3.lambda_handler        # run S3 handler locally
-ENV=dev ./scripts/ingestion/docker/run.sh nhl_api_supabase.lambda_handler   # run Supabase handler locally
-ENV=ci  ./scripts/ingestion/docker/push.sh    # push image to ECR (ci or prod)
+ENV=dev ./ingestion/scripts/build.sh   # build Docker image
+ENV=dev ./ingestion/scripts/run.sh nhl_api_s3.lambda_handler        # run S3 handler locally
+ENV=dev ./ingestion/scripts/run.sh nhl_api_supabase.lambda_handler   # run Supabase handler locally
+ENV=ci  ./ingestion/scripts/push.sh    # push image to ECR (ci or prod)
 ```
 
 Invoke locally after container starts:
@@ -29,10 +29,10 @@ curl -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" -
 
 ```bash
 cd transform && uv sync           # install deps
-./scripts/transform/docker/run.sh run      # run all models
-./scripts/transform/docker/run.sh test     # run tests
-./scripts/transform/docker/run.sh build    # run + test
-./scripts/transform/docker/run.sh compile  # compile SQL only
+./transform/scripts/run.sh run      # run all models
+./transform/scripts/run.sh test     # run tests
+./transform/scripts/run.sh build    # run + test
+./transform/scripts/run.sh compile  # compile SQL only
 ```
 
 Or directly with dbt after `uv sync`:
@@ -45,7 +45,7 @@ dbt run --select <model_name>     # run a single model
 ### Infrastructure
 
 ```bash
-./scripts/infra/deploy.sh         # deploy/update CloudFormation stack
+./infra/scripts/deploy.sh         # deploy/update CloudFormation stack
 ```
 
 ### Linting

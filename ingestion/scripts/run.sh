@@ -8,7 +8,7 @@ HANDLER="${1:?Usage: $0 <handler> (e.g. nhl_api_s3.lambda_handler)}"
 shift
 
 # Run build script
-source ./scripts/ingestion/docker/build.sh
+source ./ingestion/scripts/build.sh
 
 echo "ENV: $ENV"
 echo "Handler: $HANDLER"

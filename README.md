@@ -27,27 +27,22 @@ This project is split into two independent components, each with its own Docker 
 
 ```
 ├── ingestion/                 # Lambda ingestion functions
-│   ├── pyproject.toml         # Ingestion Python dependencies
-│   ├── Dockerfile             # Lambda container image
-│   ├── nhl_api_supabase.py    # Lambda handler for Supabase storage
-│   ├── nhl_api_s3.py          # Lambda handler for S3 storage
-│   ├── test_event.json        # Sample EventBridge event for testing
-│   └── lib/
-│       ├── nhl_api.py         # NHL API client
-│       ├── supbase_uploader.py   # Supabase upload logic
-│       └── s3_uploader.py     # S3 upload logic
+│   ├── lib/                   # Shared ingestion logic
+│   ├── scripts/               # Docker build/run/push scripts
+│   ├── Dockerfile
+│   ├── nhl_api_s3.py          # Lambda handler → S3
+│   ├── nhl_api_supabase.py    # Lambda handler → Supabase
+│   └── test_event.json        # Sample EventBridge event for testing
 ├── transform/                 # dbt transformation layer
-│   ├── pyproject.toml         # dbt Python dependencies
-│   ├── Dockerfile             # dbt container image
-│   ├── dbt_project.yml        # dbt project config
 │   ├── models/                # dbt models
-│   └── ...
+│   ├── scripts/               # Docker build/run scripts
+│   ├── Dockerfile
+│   └── dbt_project.yml
 ├── infra/
-│   └── cloudformation/        # AWS infrastructure
+│   ├── cloudformation/        # CloudFormation template
+│   └── scripts/               # Deploy script
 ├── scripts/
-│   ├── ingestion/docker/      # Ingestion Docker build/run scripts
-│   ├── transform/docker/      # Transform Docker build/run scripts
-│   └── shared/                # Shared bash utilities
+│   └── shared/                # Shared bash utilities (sourced by component scripts)
 └── .env.example               # Environment variable template
 ```
 
@@ -82,7 +77,7 @@ cp .env.example .env
 export ENV=dev
 
 # Run the Docker container with a handler
-./scripts/ingestion/docker/run.sh nhl_api_s3.lambda_handler
+./ingestion/scripts/run.sh nhl_api_s3.lambda_handler
 ```
 
 ### Invoking the Lambda locally
@@ -103,10 +98,10 @@ curl -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" \
 export ENV=dev
 
 # Run dbt commands via Docker
-./scripts/transform/docker/run.sh run          # Run all models
-./scripts/transform/docker/run.sh test         # Run tests
-./scripts/transform/docker/run.sh build        # Run + test
-./scripts/transform/docker/run.sh compile      # Compile SQL
+./transform/scripts/run.sh run          # Run all models
+./transform/scripts/run.sh test         # Run tests
+./transform/scripts/run.sh build        # Run + test
+./transform/scripts/run.sh compile      # Compile SQL
 ```
 
 ### Run locally (without Docker)
@@ -135,7 +130,7 @@ The pipeline is deployed to AWS using CloudFormation:
 Deploy infrastructure:
 
 ```bash
-./scripts/infra/deploy.sh
+./infra/scripts/deploy.sh
 ```
 
 ## CI/CD
