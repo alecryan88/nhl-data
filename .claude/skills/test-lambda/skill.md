@@ -2,6 +2,7 @@
 name: test-lambda
 description: Build the ingestion Docker image, start the Lambda container locally, invoke it with the test event, stream the response, and clean up. Accepts an optional handler arg (s3 or supabase); defaults to both.
 trigger: /test-lambda
+args: "[s3|supabase]"
 ---
 
 ## Function
@@ -37,7 +38,7 @@ Test the NHL data ingestion Lambda function locally using Docker.
 3. **Report results** — print the raw JSON response from the Lambda for each handler, and note whether the invocation succeeded or returned an error payload.
 
 ### Notes
-- Always run from the repo root (`/Users/alecryan/Desktop/nhl-data`).
+- Always run from the repo root.
 - The `.env` file at the repo root is automatically loaded by the run script via `--env-file .env`.
 - A successful Lambda response looks like `{"statusCode": 200, ...}`. An error payload will contain `"errorMessage"`.
 - If the container fails to start (port already in use), stop any existing container on port 9000 first:
