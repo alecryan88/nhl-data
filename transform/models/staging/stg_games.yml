@@ -1,0 +1,89 @@
+version: 2
+
+models:
+  - name: stg_games
+    description: >
+      Staging model that flattens raw NHL game data from the game_data source table.
+      Extracts fields from the JSONB event blob into typed columns.
+    columns:
+      - name: game_id
+        description: Unique identifier for each NHL game
+        data_type: string
+      - name: partition_date
+        description: Date the game data was ingested
+        data_type: date
+      - name: event_id
+        description: Event ID extracted from the raw API payload
+        data_type: string
+      - name: season_id
+        description: Season identifier (e.g., '20242025' for the 2024-2025 season)
+        data_type: string
+      - name: game_type_id
+        description: "Numeric code for game type: 1 = Preseason, 2 = Regular Season, 3 = Playoffs"
+        data_type: integer
+      - name: game_type
+        description: Human-readable game type (Preseason, Regular Season, Playoffs, or Unknown)
+        data_type: string
+      - name: limited_scoring_flag
+        description: Whether limited scoring rules are in effect
+        data_type: boolean
+      - name: game_date
+        description: Date of the game
+        data_type: string
+      - name: venue_name
+        description: Name of the venue where the game was played
+        data_type: string
+      - name: venue_location
+        description: Location of the venue
+        data_type: string
+      - name: start_time_utc
+        description: Scheduled start time of the game in UTC
+        data_type: timestamp
+      - name: eastern_utc_offset
+        description: UTC offset for Eastern time zone at game time
+        data_type: string
+      - name: venue_utc_offset
+        description: UTC offset for the venue's local time zone
+        data_type: string
+      - name: tv_broadcasts
+        description: JSON array of TV broadcast information
+        data_type: jsonb
+      - name: game_state
+        description: Current state of the game (e.g., OFF, LIVE, FINAL)
+        data_type: string
+      - name: game_schedule_state
+        description: Scheduling state of the game
+        data_type: string
+      - name: period_descriptor
+        description: JSON object describing the current or final period
+        data_type: jsonb
+      - name: away_team
+        description: JSON object containing away team details
+        data_type: jsonb
+      - name: home_team
+        description: JSON object containing home team details
+        data_type: jsonb
+      - name: shootout_in_use
+        description: Whether a shootout was used to decide the game
+        data_type: boolean
+      - name: ot_in_use
+        description: Whether overtime was used
+        data_type: boolean
+      - name: clock
+        description: JSON object representing the game clock state
+        data_type: jsonb
+      - name: display_period
+        description: Period number as displayed (accounts for OT numbering)
+        data_type: string
+      - name: max_periods
+        description: Maximum number of periods for this game type
+        data_type: integer
+      - name: game_outcome
+        description: JSON object describing the final game outcome
+        data_type: jsonb
+      - name: plays
+        description: JSON array of all play-by-play events in the game
+        data_type: jsonb
+      - name: roster_spots
+        description: JSON array of roster spots for both teams
+        data_type: jsonb
