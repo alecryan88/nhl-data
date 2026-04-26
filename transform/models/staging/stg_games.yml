@@ -5,6 +5,9 @@ models:
     description: >
       Staging model that flattens raw NHL game data from the game_data source table.
       Extracts fields from the JSONB event blob into typed columns.
+    meta:
+      sla: "09:00"
+      sla_margin_minutes: 60
     columns:
       - name: game_id
         description: Unique identifier for each NHL game

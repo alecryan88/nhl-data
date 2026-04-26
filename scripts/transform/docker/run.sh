@@ -17,11 +17,14 @@ if [[ $ENV == "dev" ]]
 then
     docker run --rm \
         -v $(pwd)/transform:/app \
-        --env-file .env 2>/dev/null || true \
+        -v /app/.venv \
+        --env-file transform/.env \
+        -e DBT_PROFILES_DIR=/app \
         $IMAGE "$@"
 else
     docker run --rm \
-        --env-file .env 2>/dev/null || true \
+        --env-file transform/.env \
+        -e DBT_PROFILES_DIR=/app \
         $IMAGE "$@"
 fi
 

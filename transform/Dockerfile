@@ -24,7 +24,7 @@ COPY --from=builder /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Copy dbt project files
-COPY dbt_project.yml packages.yml ./
+COPY dbt_project.yml packages.yml profiles.yml ./
 COPY models/ ./models/
 COPY macros/ ./macros/
 COPY seeds/ ./seeds/
@@ -36,6 +36,6 @@ COPY tests/ ./tests/
 RUN dbt deps
 
 # Default command - can be overridden
-ENTRYPOINT ["dbt"]
+ENTRYPOINT ["dbt-ol"]
 CMD ["--help"]
 

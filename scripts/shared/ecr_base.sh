@@ -1,5 +1,8 @@
 #!/bin/bash
-
+set -euo pipefail 
+# e: exit on any error
+# u: treat unset variables as errors
+# o pipefail: don’t ignore errors in pipeline
 # Set variables specific to ECR
 
 source ./scripts/shared/common.sh
