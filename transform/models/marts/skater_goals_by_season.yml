@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: skater_goals_by_season
+    description: >
+      Goals scored by forwards and defensemen, aggregated by player and season.
+      Excludes goalies and shootout goals. Each row is one player + season + game_type combination.
+    columns:
+      - name: id
+        description: Unique identifier for the player + season + game_type combination
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: season_id
+        description: NHL season identifier (e.g. 20232024)
+      - name: game_type
+        description: Regular Season, Playoffs, or Preseason
+      - name: player_id
+        description: NHL player ID
+      - name: first_name
+        description: Player first name
+      - name: last_name
+        description: Player last name
+      - name: position_code
+        description: Player position code (C, L, R, D)
+      - name: position_group
+        description: Forward or Defenseman
+      - name: goals
+        description: Total goals scored in the season and game type
