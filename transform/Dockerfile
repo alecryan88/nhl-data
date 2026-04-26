@@ -28,7 +28,8 @@ ENV PYTHONPATH="/app/lineage"
 COPY lineage/ ./lineage/
 
 # Copy dbt project files
-COPY transform/dbt_project.yml transform/packages.yml transform/profiles.yml transform/openlineage.yml ./
+COPY lineage/openlineage.yml ./
+COPY transform/dbt_project.yml transform/packages.yml transform/profiles.yml ./
 COPY transform/models/ ./models/
 COPY transform/macros/ ./macros/
 COPY transform/seeds/ ./seeds/

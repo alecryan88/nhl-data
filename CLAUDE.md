@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-ETL pipeline that pulls NHL game data from the NHL public API, stores raw JSON in Supabase (PostgreSQL) and S3, then transforms it with dbt. Three independent components: `ingestion/` (AWS Lambda), `transform/` (dbt), and `lineage/` (OpenLineage transport).
+ETL pipeline that pulls NHL game data from the NHL public API, stores raw JSON in Supabase (PostgreSQL) and S3, then transforms it with dbt. Four components: `ingestion/` (AWS Lambda), `transform/` (dbt), `lineage/` (OpenLineage transport), and `airflow/` (local orchestration).
 
 ## Commands
 
-Both components use **uv** for dependency management.
+All Python components use **uv** for dependency management.
 
 ### Ingestion
 
@@ -25,6 +25,11 @@ Invoke locally after container starts:
 curl -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" -d @ingestion/test_event.json
 ```
 
+Run once for a specific date (used by Airflow):
+```bash
+./scripts/ingestion/run_local.sh 2024-11-01
+```
+
 ### Transform (dbt)
 
 ```bash
@@ -35,20 +40,32 @@ cd transform && uv sync           # install deps
 ./scripts/transform/docker/run.sh compile  # compile SQL only
 ```
 
+Run without AWS credentials (used by Airflow):
+```bash
+./scripts/transform/run_local.sh run
+./scripts/transform/run_local.sh test
+```
+
 Or directly with dbt after `uv sync`:
 ```bash
 cd transform && dbt deps && dbt run
 dbt test
-dbt run --select <model_name>     # run a single model
+dbt run --select <model_name>
 ```
 
 ### Lineage
 
+No standalone run commands. The `lineage/` package installs into `transform/` as a local dependency and is loaded automatically by dbt via `lineage/openlineage.yml`.
+
+### Airflow (local orchestration)
+
 ```bash
-cd lineage && uv sync             # install deps (if package has uv project)
+cd airflow
+docker-compose up airflow-init   # one-time DB migration + admin user
+docker-compose up -d             # start scheduler + webserver
 ```
 
-The `lineage/` package is installed into the `transform/` environment as a local dependency (see `transform/pyproject.toml`). No standalone run commands — it is loaded automatically by dbt via `transform/openlineage.yml`.
+UI available at `http://localhost:8080` (admin/admin).
 
 ### Infrastructure
 
@@ -58,19 +75,19 @@ The `lineage/` package is installed into the `transform/` environment as a local
 
 ### Linting
 
-Both components use **ruff** (line-length: 100, single quotes). Run via `uv run ruff check` or `uv run ruff format` from the respective component directory.
+Both Python components use **ruff** (line-length: 100, single quotes). Run via `uv run ruff check` or `uv run ruff format` from the respective component directory.
 
 ## Architecture
 
 ### Data Flow
 
-1. **EventBridge** triggers Lambda daily at 1 PM UTC (8 AM EST)
+1. **Airflow** (local) or **EventBridge** (production) triggers the pipeline daily at 1 PM UTC
 2. **Lambda** (`ingestion/`) fetches yesterday's games from the NHL API:
    - Schedule: `https://api-web.nhle.com/v1/schedule/{date}`
    - Play-by-play per game: `https://api-web.nhle.com/v1/gamecenter/{game_id}/play-by-play`
 3. **Raw storage**: JSON written to S3 (partitioned `game_data={date}/game_id={id}.json`) and/or Supabase (`raw_api_data.game_data` table)
 4. **dbt** (`transform/`) reads from Supabase and produces flattened analytic tables
-5. **OpenLineage** (`lineage/`) emits run events from each dbt job to `lineage.ol_events` in Supabase
+5. **OpenLineage** (`lineage/`) emits run events from each dbt job and Airflow task to `lineage.ol_events` in Supabase
 
 ### Ingestion Component (`ingestion/`)
 
@@ -95,13 +112,24 @@ Uses `dbt_utils` for surrogate key generation. Configured for both PostgreSQL (S
 
 ### Lineage Component (`lineage/`)
 
-A custom [OpenLineage](https://openlineage.io/) transport that writes dbt run events directly to Supabase instead of an external Marquez server.
+A custom [OpenLineage](https://openlineage.io/) transport that writes run events directly to Supabase instead of an external Marquez server.
 
 - `lineage/nhl_lineage/transport.py` — `PostgresTransport` / `PostgresTransportConfig`: connects via `psycopg2`, auto-creates `lineage.ol_events` in Supabase on first use, and inserts each event as a JSONB row with extracted metadata columns (`event_time`, `event_type`, `job_namespace`, `job_name`, `run_id`).
-- `transform/openlineage.yml` — tells the OpenLineage client to use `nhl_lineage.transport.PostgresTransport`; also enables the `source_code_location` facet pointing at the GitHub repo.
+- `lineage/openlineage.yml` — shared config for both dbt (copied into the transform image at build time) and Airflow (read via `AIRFLOW__OPENLINEAGE__CONFIG_PATH`). Configures the transport and enables the `source_code_location` facet.
 - Credentials pulled from env vars: `SUPABASE_DB_HOST`, `SUPABASE_DB_USER`, `SUPABASE_DB_PASSWORD` (port defaults to 6543, the Supabase pooler port).
 
 The `lineage` package is declared as a local path dependency in `transform/pyproject.toml` so `uv sync` in `transform/` installs it automatically.
+
+### Airflow Component (`airflow/`)
+
+Local orchestration using Airflow 2.9.0 with LocalExecutor and a PostgreSQL metadata DB (separate from Supabase).
+
+- `airflow/docker-compose.yml` — services: `postgres`, `airflow-init`, `scheduler`, `webserver`
+- `airflow/Dockerfile` — extends `apache/airflow:2.9.0` with Docker CLI, git, and `apache-airflow-providers-openlineage`
+- `dags/nhl_pipeline.py` — single DAG scheduled at `0 13 * * *`; tasks: `dbt_run >> dbt_test`
+- OpenLineage events emitted for each task via the shared transport; dbt events carry a `parentRun` facet linking them to the Airflow task run
+
+Docker socket (`/var/run/docker.sock`) is mounted so BashOperator tasks can spin up Docker containers. The project root is mounted at `/project`.
 
 ### Infrastructure (`infra/cloudformation/resources.yml`)
 
@@ -113,6 +141,12 @@ Single CloudFormation template provisions: S3 bucket, ECR repository, two Lambda
 - `cd.yml` — on main push: re-tag the CI image as `prod` and push to ECR
 
 ## Environment Setup
+
+### Airflow (local)
+
+Copy `airflow/.env.example` to `airflow/.env` and fill in all credentials. This file is loaded by all Airflow services and passed through to task containers.
+
+### Production / direct script use
 
 Create a `.env` file at the repo root with:
 ```
@@ -128,5 +162,3 @@ SUPABASE_DB_PASSWORD=...
 ```
 
 `SUPABASE_DB_*` vars are only needed for the OpenLineage transport (direct `psycopg2` connection on port 6543).
-
-Copy `.env.example` from the repo root as a starting point.

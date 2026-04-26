@@ -11,12 +11,9 @@ docker build -t nhl-dbt-transform:local -f "$PROJECT_ROOT/transform/Dockerfile" 
 
 echo "Running: dbt $COMMAND"
 docker run --rm \
-    -v "$PROJECT_ROOT/transform:/app" \
-    -v "$PROJECT_ROOT/lineage:/app/lineage" \
-    -e PYTHONPATH=/app/lineage \
-    -v /app/.venv \
     --env-file "$PROJECT_ROOT/transform/.env" \
     -e DBT_PROFILES_DIR=/app \
     -e OPENLINEAGE__FACETS__SOURCE_CODE_LOCATION__VERSION="$GIT_SHA" \
     -e OPENLINEAGE__FACETS__SOURCE_CODE_LOCATION__BRANCH="$GIT_BRANCH" \
+    ${OPENLINEAGE_PARENT_ID:+-e OPENLINEAGE_PARENT_ID="$OPENLINEAGE_PARENT_ID"} \
     nhl-dbt-transform:local "$COMMAND"

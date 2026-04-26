@@ -10,6 +10,9 @@ x-airflow-common: &airflow-common
     AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW__WEBSERVER__SECRET_KEY:-local-dev-secret-change-me}
     AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
     AIRFLOW__LOGGING__BASE_LOG_FOLDER: /opt/airflow/logs
+    AIRFLOW__OPENLINEAGE__NAMESPACE: nhl
+    AIRFLOW__OPENLINEAGE__CONFIG_PATH: /project/lineage/openlineage.yml
+    PYTHONPATH: /project/lineage
   env_file:
     - .env
   volumes:
