@@ -1,0 +1,7 @@
+transport:
+  type: nhl_lineage.transport.PostgresTransport
+
+facets:
+  source_code_location:
+    disabled: false
+    repo_url: https://github.com/alecryan88/nhl-data

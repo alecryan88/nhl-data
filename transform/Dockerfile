@@ -8,7 +8,7 @@ ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
 # Install dependencies first (better layer caching)
-COPY pyproject.toml uv.lock* ./
+COPY transform/pyproject.toml transform/uv.lock* ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project
 
@@ -20,17 +20,21 @@ WORKDIR /app
 # Copy the virtual environment from builder
 COPY --from=builder /app/.venv /app/.venv
 
-# Add venv to PATH
+# Add venv to PATH; add /app to PYTHONPATH so nhl_lineage is importable
 ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app/lineage"
+
+# Copy lineage package (no build step needed — just needs to be on PYTHONPATH)
+COPY lineage/ ./lineage/
 
 # Copy dbt project files
-COPY dbt_project.yml packages.yml profiles.yml ./
-COPY models/ ./models/
-COPY macros/ ./macros/
-COPY seeds/ ./seeds/
-COPY snapshots/ ./snapshots/
-COPY analyses/ ./analyses/
-COPY tests/ ./tests/
+COPY transform/dbt_project.yml transform/packages.yml transform/profiles.yml transform/openlineage.yml ./
+COPY transform/models/ ./models/
+COPY transform/macros/ ./macros/
+COPY transform/seeds/ ./seeds/
+COPY transform/snapshots/ ./snapshots/
+COPY transform/analyses/ ./analyses/
+COPY transform/tests/ ./tests/
 
 # Install dbt packages (dbt_utils, etc.)
 RUN dbt deps
@@ -38,4 +42,3 @@ RUN dbt deps
 # Default command - can be overridden
 ENTRYPOINT ["dbt-ol"]
 CMD ["--help"]
-

@@ -9,7 +9,7 @@ source ./scripts/shared/common.sh
 TRANSFORM_TAG="nhl-dbt-transform"
 
 echo "Building the dbt transform image in ${ENV} environment"
-docker build -t "${TRANSFORM_TAG}:${GIT_SHA}" -t "${TRANSFORM_TAG}:latest" -f transform/Dockerfile ./transform
+docker build -t "${TRANSFORM_TAG}:${GIT_SHA}" -t "${TRANSFORM_TAG}:latest" -f transform/Dockerfile .
 
 export TRANSFORM_TAG=$TRANSFORM_TAG
 

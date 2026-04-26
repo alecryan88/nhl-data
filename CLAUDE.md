@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-ETL pipeline that pulls NHL game data from the NHL public API, stores raw JSON in Supabase (PostgreSQL) and S3, then transforms it with dbt. Two independent components: `ingestion/` (AWS Lambda) and `transform/` (dbt).
+ETL pipeline that pulls NHL game data from the NHL public API, stores raw JSON in Supabase (PostgreSQL) and S3, then transforms it with dbt. Three independent components: `ingestion/` (AWS Lambda), `transform/` (dbt), and `lineage/` (OpenLineage transport).
 
 ## Commands
 
@@ -42,6 +42,14 @@ dbt test
 dbt run --select <model_name>     # run a single model
 ```
 
+### Lineage
+
+```bash
+cd lineage && uv sync             # install deps (if package has uv project)
+```
+
+The `lineage/` package is installed into the `transform/` environment as a local dependency (see `transform/pyproject.toml`). No standalone run commands — it is loaded automatically by dbt via `transform/openlineage.yml`.
+
 ### Infrastructure
 
 ```bash
@@ -62,6 +70,7 @@ Both components use **ruff** (line-length: 100, single quotes). Run via `uv run 
    - Play-by-play per game: `https://api-web.nhle.com/v1/gamecenter/{game_id}/play-by-play`
 3. **Raw storage**: JSON written to S3 (partitioned `game_data={date}/game_id={id}.json`) and/or Supabase (`raw_api_data.game_data` table)
 4. **dbt** (`transform/`) reads from Supabase and produces flattened analytic tables
+5. **OpenLineage** (`lineage/`) emits run events from each dbt job to `lineage.ol_events` in Supabase
 
 ### Ingestion Component (`ingestion/`)
 
@@ -84,6 +93,16 @@ dbt project with two model layers:
 
 Uses `dbt_utils` for surrogate key generation. Configured for both PostgreSQL (Supabase) and DuckDB profiles.
 
+### Lineage Component (`lineage/`)
+
+A custom [OpenLineage](https://openlineage.io/) transport that writes dbt run events directly to Supabase instead of an external Marquez server.
+
+- `lineage/nhl_lineage/transport.py` — `PostgresTransport` / `PostgresTransportConfig`: connects via `psycopg2`, auto-creates `lineage.ol_events` in Supabase on first use, and inserts each event as a JSONB row with extracted metadata columns (`event_time`, `event_type`, `job_namespace`, `job_name`, `run_id`).
+- `transform/openlineage.yml` — tells the OpenLineage client to use `nhl_lineage.transport.PostgresTransport`; also enables the `source_code_location` facet pointing at the GitHub repo.
+- Credentials pulled from env vars: `SUPABASE_DB_HOST`, `SUPABASE_DB_USER`, `SUPABASE_DB_PASSWORD` (port defaults to 6543, the Supabase pooler port).
+
+The `lineage` package is declared as a local path dependency in `transform/pyproject.toml` so `uv sync` in `transform/` installs it automatically.
+
 ### Infrastructure (`infra/cloudformation/resources.yml`)
 
 Single CloudFormation template provisions: S3 bucket, ECR repository, two Lambda functions, EventBridge rules, and IAM roles.
@@ -103,6 +122,11 @@ AWS_DEFAULT_REGION=...
 S3_BUCKET=...
 SUPABASE_URL=...
 SUPABASE_SECRET=...
+SUPABASE_DB_HOST=...
+SUPABASE_DB_USER=...
+SUPABASE_DB_PASSWORD=...
 ```
+
+`SUPABASE_DB_*` vars are only needed for the OpenLineage transport (direct `psycopg2` connection on port 6543).
 
 Copy `.env.example` from the repo root as a starting point.
